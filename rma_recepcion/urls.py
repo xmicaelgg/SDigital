@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('equipos.urls')),
     path('', include('procesador_de_imei.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
 
 # Configurar archivos estáticos en desarrollo
