@@ -1,0 +1,1 @@
+web: gunicorn rma_recepcion.wsgi 
