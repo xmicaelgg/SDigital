@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: rma-recepcion
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn rma_recepcion.wsgi"
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+    staticPublishPath: staticfiles
+    plan: free 
