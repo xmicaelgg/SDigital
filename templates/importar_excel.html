@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Importar Equipos{% endblock %}
+{% block content %}
+<h2>Importar Equipos desde Excel/CSV</h2>
+<div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;"></div>
+<form method="post" enctype="multipart/form-data" id="form-importar" autocomplete="off">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="mb-3">
+    <label for="archivo" class="form-label">Archivo Excel/CSV</label>
+    <input type="file" class="form-control" id="archivo" name="archivo" accept=".csv,.xlsx" required>
+  </div>
+  <button type="submit" class="btn btn-primary">Procesar</button>
+  <span id="spinner" class="ms-3" style="display:none;"><span class="spinner-border spinner-border-sm text-primary"></span> Guardando...</span>
+</form>
+{% if errores %}
+  <div class="alert alert-danger mt-3">
+    <ul>
+      {% for error in errores %}
+        <li>{{ error }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+<script>
+const form = document.getElementById('form-importar');
+const spinner = document.getElementById('spinner');
+const toastContainer = document.getElementById('toast-container');
+form.addEventListener('submit', function(e) {
+  spinner.style.display = 'inline-block';
+});
+if (window.location.search.includes('importado=1')) {
+  showToast('Importación exitosa', 'success');
+}
+function showToast(message, type) {
+  const toast = document.createElement('div');
+  toast.className = `toast align-items-center text-bg-${type} border-0 show`;
+  toast.role = 'alert';
+  toast.innerHTML = `<div class='d-flex'><div class='toast-body'>${message}</div><button type='button' class='btn-close btn-close-white me-2 m-auto' data-bs-dismiss='toast'></button></div>`;
+  toastContainer.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+</script>
+{% endblock %} 

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="imei-form-container">
+    <h2>Historial de Procesamientos</h2>
+    {% if historial %}
+        <table style="width:100%;background:#18192a;border-radius:0.7rem;overflow:hidden;box-shadow:0 2px 8px #0002;">
+            <thead>
+                <tr style="background:#23243a;color:#a29bfe;">
+                    <th style="padding:0.7rem;">Fecha</th>
+                    <th style="padding:0.7rem;">Modelo</th>
+                    <th style="padding:0.7rem;">Cantidad</th>
+                    <th style="padding:0.7rem;">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reg in historial %}
+                <tr style="border-bottom:1px solid #393a5a;">
+                    <td style="padding:0.7rem;">{{ reg.fecha|date:"Y-m-d H:i" }}</td>
+                    <td style="padding:0.7rem;">{{ reg.get_modelo_display }}</td>
+                    <td style="padding:0.7rem;">{{ reg.cantidad }}</td>
+                    <td style="padding:0.7rem;">
+                        <a href="{% url 'descargar_historial_txt' reg.id %}" class="btn btn-secondary">Descargar TXT</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay historial guardado.</p>
+    {% endif %}
+</div>
+{% endblock %} 

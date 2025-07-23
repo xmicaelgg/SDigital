@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Lotes de Equipos{% endblock %}
+{% block content %}
+<h2>Lotes de Equipos (Recepciones de Factura)</h2>
+<a href="/lote/nuevo" class="btn btn-success mb-3">Crear nuevo lote</a>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Número de Lote</th>
+      <th>Fecha de Factura</th>
+      <th>Cantidad de IMEIs</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for lote in lotes %}
+    <tr>
+      <td>{{ lote.numero_factura }}</td>
+      <td>{{ lote.fecha_factura }}</td>
+      <td>{{ lote.cantidad }}</td>
+      <td>
+        <a href="/lote/{{ lote.id }}/ver" class="btn btn-info btn-sm">Ver IMEIs</a>
+        <a href="/lote/{{ lote.id }}/imeis" class="btn btn-primary btn-sm">Ingresar IMEIs</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %} 

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Agregar Equipo{% endblock %}
+{% block content %}
+<h2>{% if editar %}Editar Equipo{% else %}Agregar Equipo{% endif %}</h2>
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="mb-3">
+    <label for="imei" class="form-label">IMEI</label>
+    <input type="text" class="form-control" id="imei" name="imei" value="{{ equipo.imei if editar else '' }}" required>
+  </div>
+  <div class="mb-3">
+    <label for="marca" class="form-label">Marca</label>
+    <input type="text" class="form-control" id="marca" name="marca" value="{{ equipo.marca if editar else '' }}" required>
+  </div>
+  <div class="mb-3">
+    <label for="modelo" class="form-label">Modelo</label>
+    <input type="text" class="form-control" id="modelo" name="modelo" value="{{ equipo.modelo if editar else '' }}" required>
+  </div>
+  <div class="mb-3">
+    <label for="estado" class="form-label">Estado</label>
+    <select class="form-select" id="estado" name="estado" required>
+      {% for estado in EstadoEnum %}
+        <option value="{{ estado.value }}" {% if editar and equipo.estado.value == estado.value %}selected{% endif %}>{{ estado.value }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" id="caja_original" name="caja_original" {% if editar and equipo.caja_original %}checked{% endif %}>
+    <label class="form-check-label" for="caja_original">Caja Original</label>
+  </div>
+  <div class="mb-3">
+    <label for="observaciones" class="form-label">Observaciones</label>
+    <textarea class="form-control" id="observaciones" name="observaciones">{{ equipo.observaciones if editar else '' }}</textarea>
+  </div>
+  <button type="submit" class="btn btn-success">{% if editar %}Actualizar{% else %}Agregar{% endif %}</button>
+  <a href="/" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %} 

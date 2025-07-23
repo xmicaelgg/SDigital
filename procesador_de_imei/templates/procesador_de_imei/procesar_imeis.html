@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="imei-form-container">
+    <h2>Procesar IMEIs</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div style="width:100%;margin-bottom:1rem;">
+            {{ form.modelo.label_tag }}
+            {{ form.modelo }}
+        </div>
+        {{ form.raw_text.label_tag }}
+        {{ form.raw_text }}
+        <div style="display:flex;gap:1rem;flex-wrap:wrap;">
+            <button type="submit" class="btn btn-primary">Procesar</button>
+            <button type="submit" name="limpiar" class="btn btn-warning" style="color:#23243a;">Limpiar</button>
+            {% if resultados.imeis_encontrados %}
+                <button type="submit" name="guardar_historial" class="btn btn-success">Guardar en historial</button>
+            {% endif %}
+        </div>
+    </form>
+
+    {% if resultados.imeis_encontrados %}
+        <hr>
+        <h4>IMEIs únicos encontrados ({{ resultados.imeis_encontrados|length }})</h4>
+        <button id="copiar-imeis" class="btn btn-secondary" style="margin-bottom: 1rem;">Copiar todos</button>
+        <div id="imeis-scroll" style="max-height: 300px; overflow-y: auto; background: #18192a; border-radius: 0.6rem; padding: 1rem; border: 1px solid #a29bfe55;">
+            <ul style="margin:0; padding-left:1.2rem;">
+                {% for imei in resultados.imeis_encontrados %}
+                    <li>{{ imei }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="alert alert-success" style="margin-top:1rem;">
+            Nuevos guardados: {{ resultados.nuevos }}
+        </div>
+    {% endif %}
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnCopiar = document.getElementById('copiar-imeis');
+        const imeisScroll = document.getElementById('imeis-scroll');
+        if(btnCopiar && imeisScroll) {
+            btnCopiar.onclick = function(e) {
+                e.preventDefault();
+                // Obtener todos los IMEIs como texto plano
+                const imeis = Array.from(imeisScroll.querySelectorAll('li')).map(li => li.textContent).join('\n');
+                navigator.clipboard.writeText(imeis).then(function() {
+                    btnCopiar.textContent = '¡Copiado!';
+                    setTimeout(()=>{btnCopiar.textContent = 'Copiar todos';}, 1500);
+                });
+            }
+        }
+    });
+</script>
+{% endblock %} 

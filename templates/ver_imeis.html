@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Ver IMEIs{% endblock %}
+{% block content %}
+<h2>IMEIs del lote: {{ lote.marca }} {{ lote.modelo }}</h2>
+<button class="btn btn-outline-secondary mb-2" type="button" onclick="copiarIMEIs()">Copiar todos los IMEIs</button>
+<table class="table table-sm table-bordered" id="tabla-imeis">
+  <thead>
+    <tr>
+      <th>IMEI</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for eq in equipos %}
+    <tr>
+      <td>{{ eq.imei }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+<script>
+function copiarIMEIs() {
+  let imeis = [];
+  document.querySelectorAll('#tabla-imeis tbody tr').forEach(row => {
+    imeis.push(row.cells[0].innerText);
+  });
+  navigator.clipboard.writeText(imeis.join('\n'));
+  alert('IMEIs copiados al portapapeles');
+}
+</script>
+<a href="/" class="btn btn-secondary mt-3">Volver</a>
+{% endblock %} 

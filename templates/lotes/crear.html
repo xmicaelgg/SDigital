@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %}Crear Lote de Recepción{% endblock %}
+{% block content %}
+<h2 class="mb-4">Crear Lote de Recepción</h2>
+<form method="post" class="card p-4 shadow-sm" autocomplete="off">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="mb-3">
+    <label for="numero_lote" class="form-label">Número de Lote</label>
+    <input type="text" class="form-control" id="numero_lote" name="numero_lote" required>
+  </div>
+  <div class="mb-3">
+    <label for="descripcion" class="form-label">Descripción (opcional)</label>
+    <textarea class="form-control" id="descripcion" name="descripcion"></textarea>
+  </div>
+  <button type="submit" class="btn btn-success">Crear lote</button>
+  <a href="/lotes" class="btn btn-secondary">Cancelar</a>
+</form>
+{% if mensaje %}
+  <div class="alert alert-danger mt-3">{{ mensaje }}</div>
+{% endif %}
+{% endblock %} 

@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block title %}Importar Excel - RMA Recepción{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-file-excel me-2"></i>Importar Equipos desde Excel
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.lote.id_for_label }}" class="form-label">
+                            <i class="fas fa-box me-1"></i>Lote de Destino
+                        </label>
+                        {{ form.lote }}
+                        {% if form.lote.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.lote.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Seleccione el lote donde se importarán los equipos</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.archivo.id_for_label }}" class="form-label">
+                            <i class="fas fa-upload me-1"></i>Archivo Excel/CSV
+                        </label>
+                        {{ form.archivo }}
+                        {% if form.archivo.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.archivo.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">{{ form.archivo.help_text }}</div>
+                    </div>
+                    
+                    <!-- Información sobre el formato -->
+                    <div class="alert alert-info">
+                        <h6><i class="fas fa-info-circle me-1"></i>Formato del archivo</h6>
+                        <p class="mb-2">El archivo debe contener las siguientes columnas:</p>
+                        <ul class="mb-0">
+                            <li><strong>imei</strong> (requerido): IMEI del equipo (15 dígitos)</li>
+                            <li><strong>marca</strong> (opcional): Marca del equipo</li>
+                            <li><strong>modelo</strong> (opcional): Modelo del equipo</li>
+                            <li><strong>estado</strong> (opcional): Estado del equipo (Nuevo, Usado, Roto, Mezcla, Perdida)</li>
+                            <li><strong>caja_original</strong> (opcional): Si tiene caja original (true/false, 1/0, sí/no)</li>
+                            <li><strong>observaciones</strong> (opcional): Observaciones adicionales</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'equipos:index' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload me-1"></i>Importar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Errores de importación -->
+        {% if errores %}
+        <div class="card mt-4 border-danger">
+            <div class="card-header bg-danger text-white">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Errores de Importación
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <p><strong>{{ errores|length }} equipos no pudieron ser importados:</strong></p>
+                    <ul class="mb-0">
+                        {% for error in errores %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Plantilla de ejemplo -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-download me-2"></i>Descargar Plantilla de Ejemplo
+                </h6>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Descarga esta plantilla para ver el formato correcto del archivo:</p>
+                <a href="#" class="btn btn-outline-success" onclick="descargarPlantilla()">
+                    <i class="fas fa-file-excel me-1"></i>Descargar Plantilla Excel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function descargarPlantilla() {
+    // Crear datos de ejemplo
+    const datos = [
+        {
+            imei: '123456789012345',
+            marca: 'Samsung',
+            modelo: 'Galaxy S21',
+            estado: 'Nuevo',
+            caja_original: 'Sí',
+            observaciones: 'Equipo en perfecto estado'
+        },
+        {
+            imei: '987654321098765',
+            marca: 'Apple',
+            modelo: 'iPhone 13',
+            estado: 'Usado',
+            caja_original: 'No',
+            observaciones: 'Equipo usado, sin caja'
+        },
+        {
+            imei: '111222333444555',
+            marca: 'Xiaomi',
+            modelo: 'Redmi Note 10',
+            estado: 'Roto',
+            caja_original: 'No',
+            observaciones: 'Pantalla rota'
+        }
+    ];
+    
+    // Convertir a CSV
+    const headers = ['imei', 'marca', 'modelo', 'estado', 'caja_original', 'observaciones'];
+    const csvContent = [
+        headers.join(','),
+        ...datos.map(row => headers.map(header => `"${row[header]}"`).join(','))
+    ].join('\n');
+    
+    // Crear y descargar archivo
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'plantilla_equipos.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+</script>
+{% endblock %} 

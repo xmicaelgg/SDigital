@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+
+{% block title %}Ingresar IMEIs - {{ lote.numero_lote }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1><i class="fas fa-list-ol me-2"></i>Ingresar IMEIs</h1>
+                <p class="text-muted mb-0">Lote: {{ lote.numero_lote }}</p>
+            </div>
+            <a href="{% url 'equipos:detalle_lote' lote.id %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Volver al Lote
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Formulario de Ingreso -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-plus me-2"></i>Agregar IMEIs
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="marca" class="form-label">
+                                    <i class="fas fa-tag me-1"></i>Marca
+                                </label>
+                                <input type="text" class="form-control" id="marca" name="marca" 
+                                       value="{{ marca_sel }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="modelo" class="form-label">
+                                    <i class="fas fa-mobile-alt me-1"></i>Modelo
+                                </label>
+                                <input type="text" class="form-control" id="modelo" name="modelo" 
+                                       value="{{ modelo_sel }}" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="imeis" class="form-label">
+                            <i class="fas fa-list me-1"></i>IMEIs (uno por línea)
+                        </label>
+                        <textarea class="form-control" id="imeis" name="imeis" rows="10" 
+                                  placeholder="Ingrese los IMEIs, uno por línea&#10;Ejemplo:&#10;123456789012345&#10;987654321098765" required></textarea>
+                        <div class="form-text">Cada IMEI debe tener exactamente 15 dígitos numéricos</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save me-1"></i>Guardar IMEIs
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Resumen de Equipos -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Resumen del Lote
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if resumen %}
+                    <div class="list-group">
+                        {% for grupo in resumen %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ grupo.marca }} {{ grupo.modelo }}</h6>
+                                    <small class="text-muted">{{ grupo.cantidad }} equipos</small>
+                                </div>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-primary" 
+                                            onclick="filtrarPorModelo('{{ grupo.marca }}', '{{ grupo.modelo }}')">
+                                        <i class="fas fa-filter me-1"></i>Filtrar
+                                    </button>
+                                    <button type="button" class="btn btn-outline-info" 
+                                            onclick="mostrarImeis('{{ grupo.marca }}', '{{ grupo.modelo }}')">
+                                        <i class="fas fa-eye me-1"></i>Ver
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-mobile-alt fa-3x text-muted mb-3"></i>
+                        <h6 class="text-muted">No hay equipos en este lote</h6>
+                        <p class="text-muted">Comienza agregando IMEIs</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- IMEIs Filtrados -->
+        {% if imeis_filtrados %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-filter me-2"></i>IMEIs de {{ marca_sel }} {{ modelo_sel }}
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for imei in imeis_filtrados %}
+                    <div class="col-md-6 mb-2">
+                        <code class="bg-light p-1 rounded">{{ imei }}</code>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Modal para mostrar IMEIs -->
+<div class="modal fade" id="imeisModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">IMEIs - <span id="modalTitle"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="imeisList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filtrarPorModelo(marca, modelo) {
+    window.location.href = `?marca=${marca}&modelo=${modelo}`;
+}
+
+function mostrarImeis(marca, modelo) {
+    const resumen = {{ resumen|safe }};
+    const grupo = resumen.find(g => g.marca === marca && g.modelo === modelo);
+    
+    if (grupo) {
+        document.getElementById('modalTitle').textContent = marca + ' ' + modelo;
+        document.getElementById('imeisList').innerHTML = grupo.imeis.map(imei => 
+            `<div class="mb-2"><code class="bg-light p-2 rounded">${imei}</code></div>`
+        ).join('');
+        
+        new bootstrap.Modal(document.getElementById('imeisModal')).show();
+    }
+}
+
+// Auto-completar marca y modelo si hay filtro activo
+document.addEventListener('DOMContentLoaded', function() {
+    const marcaInput = document.getElementById('marca');
+    const modeloInput = document.getElementById('modelo');
+    
+    if (marcaInput.value && modeloInput.value) {
+        marcaInput.focus();
+    }
+});
+</script>
+{% endblock %} 

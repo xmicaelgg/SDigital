@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block title %}Crear Lote - RMA Recepción{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card" data-aos="fade-up">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>Crear Nuevo Lote
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" data-aos="fade-up" data-aos-delay="200">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6" data-aos="slide-in-left" data-aos-delay="300">
+                            <div class="mb-4">
+                                <label for="{{ form.numero_lote.id_for_label }}" class="form-label">
+                                    <i class="fas fa-hashtag me-1"></i>Número de Lote
+                                </label>
+                                {{ form.numero_lote }}
+                                {% if form.numero_lote.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.numero_lote.errors %}
+                                            <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    <i class="fas fa-info-circle me-1"></i>Se genera automáticamente si se deja vacío
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6" data-aos="slide-in-right" data-aos-delay="400">
+                            <div class="mb-4">
+                                <label class="form-label">
+                                    <i class="fas fa-calendar me-1"></i>Fecha de Creación
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-calendar-day"></i>
+                                    </span>
+                                    <input type="text" class="form-control" value="{{ fecha_hoy }}" readonly>
+                                </div>
+                                <div class="form-text">
+                                    <i class="fas fa-clock me-1"></i>Fecha actual del sistema
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4" data-aos="fade-up" data-aos-delay="500">
+                        <label for="{{ form.descripcion.id_for_label }}" class="form-label">
+                            <i class="fas fa-align-left me-1"></i>Descripción del Lote
+                        </label>
+                        {{ form.descripcion }}
+                        {% if form.descripcion.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.descripcion.errors %}
+                                    <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            <i class="fas fa-lightbulb me-1"></i>Describe el propósito o contenido del lote
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4" data-aos="fade-up" data-aos-delay="550">
+                        <label for="{{ form.cantidad_modelos.id_for_label }}" class="form-label">
+                            <i class="fas fa-list-ol me-1"></i>Cantidad de Modelos
+                        </label>
+                        {{ form.cantidad_modelos }}
+                        {% if form.cantidad_modelos.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.cantidad_modelos.errors %}
+                                    <i class="fas fa-exclamation-triangle me-1"></i>{{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            <i class="fas fa-info-circle me-1"></i>Indica la cantidad de modelos/equipos esperados en el lote
+                        </div>
+                    </div>
+                    
+                    <!-- Información adicional -->
+                    <div class="alert alert-info" data-aos="fade-up" data-aos-delay="600">
+                        <h6><i class="fas fa-info-circle me-2"></i>Información del Lote</h6>
+                        <ul class="mb-0">
+                            <li>El lote se creará con un número único automático</li>
+                            <li>Podrás agregar equipos inmediatamente después de la creación</li>
+                            <li>Los equipos se organizarán por marca y modelo</li>
+                            <li>Podrás exportar el lote completo a Excel</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between" data-aos="fade-up" data-aos-delay="700">
+                        <a href="{% url 'equipos:index' %}" class="btn btn-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Crear Lote
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Tarjetas informativas -->
+        <div class="row mt-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="800">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-box"></i>
+                    </div>
+                    <h6>Gestión de Lotes</h6>
+                    <p class="text-white-50">Organiza tus equipos en lotes para mejor control</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="900">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h6>Equipos Múltiples</h6>
+                    <p class="text-white-50">Agrega varios equipos al mismo lote</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="1000">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-file-excel"></i>
+                    </div>
+                    <h6>Exportación</h6>
+                    <p class="text-white-50">Exporta tus lotes a Excel fácilmente</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .info-card {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+
+    .info-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .info-icon {
+        width: 60px;
+        height: 60px;
+        background: var(--primary-gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1rem;
+        font-size: 1.5rem;
+        color: white;
+    }
+
+    .info-card h6 {
+        color: white;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .form-control, .form-select {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: white;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .input-group-text {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .form-label {
+        color: white;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-text {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .alert-info {
+        background: rgba(23, 162, 184, 0.2);
+        border: 1px solid rgba(23, 162, 184, 0.3);
+        color: white;
+    }
+
+    .alert-info h6 {
+        color: white;
+        font-weight: 600;
+    }
+
+    .alert-info ul {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .invalid-feedback {
+        color: #ff6b6b;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+</style>
+{% endblock %} 

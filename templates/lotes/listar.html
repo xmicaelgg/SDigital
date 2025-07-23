@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block title %}Lotes de Recepción{% endblock %}
+{% block content %}
+<h2 class="mb-4">Lotes de Recepción</h2>
+<a href="/lotes/crear" class="btn btn-success mb-3">Crear nuevo lote</a>
+<table class="table table-hover table-bordered align-middle shadow-sm">
+  <thead class="table-dark">
+    <tr>
+      <th>Número de Lote</th>
+      <th>Fecha de Creación</th>
+      <th>Descripción</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for lote in lotes %}
+    <tr>
+      <td class="fw-bold">{{ lote.numero_lote }}</td>
+      <td>{{ lote.fecha_creacion.strftime('%Y-%m-%d %H:%M') }}</td>
+      <td>{{ lote.descripcion or '' }}</td>
+      <td>
+        <a href="/lotes/{{ lote.id }}" class="btn btn-primary btn-sm">Ver Detalles</a>
+        <a href="/lotes/{{ lote.id }}/exportar" class="btn btn-outline-success btn-sm">Exportar Excel</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %} 

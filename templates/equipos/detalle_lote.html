@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ lote.numero_lote }} - RMA Recepción{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1><i class="fas fa-box me-2"></i>Lote: {{ lote.numero_lote }}</h1>
+                <p class="text-muted mb-0">
+                    Creado el {{ lote.fecha_creacion|date:"d/m/Y H:i" }}
+                    {% if lote.descripcion %}
+                        - {{ lote.descripcion }}
+                    {% endif %}
+                </p>
+            </div>
+            <div class="btn-group" role="group">
+                <a href="{% url 'equipos:agregar_equipo' lote.id %}" class="btn btn-success">
+                    <i class="fas fa-plus me-1"></i>Agregar Equipo
+                </a>
+                <a href="{% url 'equipos:ingresar_imeis' lote.id %}" class="btn btn-info">
+                    <i class="fas fa-list-ol me-1"></i>Ingresar IMEIs
+                </a>
+                <a href="{% url 'equipos:exportar_lote' lote.id %}" class="btn btn-warning">
+                    <i class="fas fa-download me-1"></i>Exportar
+                </a>
+                <a href="{% url 'equipos:editar_lote' lote.id %}" class="btn btn-primary">
+                    <i class="fas fa-edit me-1"></i>Editar Lote
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas del Lote -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-mobile-alt fa-2x text-primary mb-2"></i>
+                <h5 class="card-title">{{ total_equipos }}</h5>
+                <p class="card-text">Total Equipos</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-tags fa-2x text-success mb-2"></i>
+                <h5 class="card-title">{{ resumen|length }}</h5>
+                <p class="card-text">Modelos Diferentes</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-box fa-2x text-warning mb-2"></i>
+                <h5 class="card-title">
+                    {% for grupo in resumen %}
+                        {% if grupo.caja_original_count %}
+                            {{ grupo.caja_original_count }}
+                        {% endif %}
+                    {% endfor %}
+                </h5>
+                <p class="card-text">Con Caja Original</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="fas fa-calendar fa-2x text-info mb-2"></i>
+                <h5 class="card-title">{{ lote.fecha_creacion|date:"d/m/Y" }}</h5>
+                <p class="card-text">Fecha Creación</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resumen por Marca/Modelo -->
+{% if resumen %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Resumen por Marca y Modelo
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for grupo in resumen %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card border-primary">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="card-title mb-0">
+                                    <i class="fas fa-mobile-alt me-1"></i>{{ grupo.marca }} {{ grupo.modelo }}
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">
+                                    <strong>Cantidad:</strong> {{ grupo.cantidad }} equipos
+                                </p>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button type="button" class="btn btn-outline-primary" 
+                                            onclick="mostrarImeis('{{ grupo.marca }}', '{{ grupo.modelo }}')">
+                                        <i class="fas fa-eye me-1"></i>Ver IMEIs
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Lista de Equipos -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-list me-2"></i>Equipos del Lote
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if equipos %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>IMEI</th>
+                                    <th>Marca</th>
+                                    <th>Modelo</th>
+                                    <th>Estado</th>
+                                    <th>Caja Original</th>
+                                    <th>Fecha Ingreso</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for equipo in equipos %}
+                                <tr>
+                                    <td>
+                                        <code>{{ equipo.imei }}</code>
+                                    </td>
+                                    <td>{{ equipo.marca }}</td>
+                                    <td>{{ equipo.modelo }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if equipo.estado == 'Nuevo' %}success{% elif equipo.estado == 'Usado' %}warning{% elif equipo.estado == 'Roto' %}danger{% else %}secondary{% endif %}">
+                                            {{ equipo.estado }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if equipo.caja_original %}
+                                            <i class="fas fa-check text-success"></i>
+                                        {% else %}
+                                            <i class="fas fa-times text-muted"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ equipo.fecha_ingreso|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'equipos:editar_equipo' equipo.id %}" 
+                                               class="btn btn-outline-primary" 
+                                               title="Editar">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'equipos:eliminar_equipo' equipo.id %}" 
+                                               class="btn btn-outline-danger" 
+                                               title="Eliminar"
+                                               onclick="return confirm('¿Estás seguro de que quieres eliminar este equipo?')">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-mobile-alt fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No hay equipos en este lote</h5>
+                        <p class="text-muted">Comienza agregando equipos al lote</p>
+                        <a href="{% url 'equipos:agregar_equipo' lote.id %}" class="btn btn-primary">
+                            <i class="fas fa-plus me-1"></i>Agregar Primer Equipo
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para mostrar IMEIs -->
+<div class="modal fade" id="imeisModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">IMEIs - <span id="modalTitle"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="imeisList"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function mostrarImeis(marca, modelo) {
+    const equipos = {{ equipos|safe }};
+    const imeis = equipos.filter(e => e.marca === marca && e.modelo === modelo)
+                        .map(e => e.imei);
+    
+    document.getElementById('modalTitle').textContent = marca + ' ' + modelo;
+    document.getElementById('imeisList').innerHTML = imeis.map(imei => 
+        `<div class="mb-2"><code>${imei}</code></div>`
+    ).join('');
+    
+    new bootstrap.Modal(document.getElementById('imeisModal')).show();
+}
+</script>
+{% endblock %} 

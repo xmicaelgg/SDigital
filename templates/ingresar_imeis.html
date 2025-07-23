@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Ingresar IMEIs{% endblock %}
+{% block content %}
+<h2>Agregar IMEIs al lote: {{ lote.numero_factura }}</h2>
+<div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 9999;"></div>
+<form method="post" id="form-imeis" autocomplete="off">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="row">
+    <div class="col-md-4 mb-3">
+      <label for="marca" class="form-label">Marca</label>
+      <input type="text" class="form-control" id="marca" name="marca" value="{{ marca_sel }}" required>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label for="modelo" class="form-label">Modelo</label>
+      <input type="text" class="form-control" id="modelo" name="modelo" value="{{ modelo_sel }}" required>
+    </div>
+    <div class="col-md-4 mb-3">
+      <label for="imeis" class="form-label">IMEIs (uno por línea)</label>
+      <textarea class="form-control" id="imeis" name="imeis" rows="5" required></textarea>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Agregar IMEIs</button>
+  <a href="/" class="btn btn-secondary">Volver</a>
+  <span id="spinner" class="ms-3" style="display:none;"><span class="spinner-border spinner-border-sm text-primary"></span> Guardando...</span>
+</form>
+{% if mensaje %}
+  <div class="alert alert-info mt-3">{{ mensaje }}</div>
+{% endif %}
+<h4 class="mt-4">Resumen de marcas/modelos en este lote</h4>
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Marca</th>
+      <th>Modelo</th>
+      <th>Cantidad</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for grupo in resumen %}
+    <tr>
+      <td>{{ grupo.marca }}</td>
+      <td>{{ grupo.modelo }}</td>
+      <td>{{ grupo.cantidad }}</td>
+      <td>
+        <a href="?marca={{ grupo.marca }}&modelo={{ grupo.modelo }}" class="btn btn-info btn-sm">Ver IMEIs</a>
+        <button type="button" class="btn btn-primary btn-sm" onclick="autocompletar('{{ grupo.marca }}','{{ grupo.modelo }}')">Ingresar IMEIs</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if imeis_filtrados %}
+  <h5 class="mt-4">IMEIs de {{ marca_sel }} {{ modelo_sel }}</h5>
+  <ul class="list-group mb-4">
+    {% for imei in imeis_filtrados %}
+    <li class="list-group-item">{{ imei }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+<script>
+const form = document.getElementById('form-imeis');
+const spinner = document.getElementById('spinner');
+const toastContainer = document.getElementById('toast-container');
+form.addEventListener('submit', function(e) {
+  spinner.style.display = 'inline-block';
+});
+if (window.location.search.includes('agregado=1')) {
+  showToast('IMEI(s) agregado correctamente', 'success');
+}
+function showToast(message, type) {
+  const toast = document.createElement('div');
+  toast.className = `toast align-items-center text-bg-${type} border-0 show`;
+  toast.role = 'alert';
+  toast.innerHTML = `<div class='d-flex'><div class='toast-body'>${message}</div><button type='button' class='btn-close btn-close-white me-2 m-auto' data-bs-dismiss='toast'></button></div>`;
+  toastContainer.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+function autocompletar(marca, modelo) {
+  document.getElementById('marca').value = marca;
+  document.getElementById('modelo').value = modelo;
+  document.getElementById('imeis').focus();
+}
+</script>
+{% endblock %} 
